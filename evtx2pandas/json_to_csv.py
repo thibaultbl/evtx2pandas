@@ -1,17 +1,35 @@
-import re
 import math
 import json
 
 import pandas as pd
-from typing import Dict, Iterable, Any
+import dask.dataframe as dd
+from typing import Dict, Iterable, Any, Union
 
 from evtx import PyEvtxParser
 
 
-class EvtxJsonParser:
-    def evtx_to_df(self, evtx_path: str, nrows: int = math.inf) -> pd.DataFrame:
+class EvtxParser:
+    # def evtx_to_dask_dd(self, evtx_path: str, nrows: int = math.inf) -> dd:
+    # pass
+
+    def evtx_to_csv(self, evtx_path: str, output_path: str, nrows: int = math.inf):
+        df = self.evtx_to_df(evtx_path, nrows)
+        df.to_csv(output_path)
+
+    def _df_chunck(self, mydict: Dict[Any, Any]) -> Iterable[pd.DataFrame]:
+        for row in mydict:
+            yield self.dict_to_df(row)
+
+    def evtx_to_df(self,
+                   evtx_path: str,
+                   nrows: int = math.inf,
+                   iterable: bool = False) -> Union[pd.DataFrame, Iterable[pd.DataFrame]]:
         mydict = self.evtx_to_dict(evtx_path, nrows)
-        return self.dict_to_df(mydict)
+
+        if iterable is False:
+            return self.dict_to_df(mydict)
+        else:
+            return self._df_chunck(mydict)
 
     def evtx_to_dict(self, evtx_path: str, nrows: int = math.inf) -> Iterable[Dict[Any, Any]]:
         parser = PyEvtxParser(evtx_path)

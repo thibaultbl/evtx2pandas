@@ -1,19 +1,18 @@
 import os
+import itertools
 
 import numpy as np
 import pandas as pd
 
-from evtx2pandas.json_to_csv import EvtxJsonParser
+from evtx2pandas.json_to_csv import EvtxParser
 
 
 def test_evtx_to_df():
-    reader = EvtxJsonParser()
+    reader = EvtxParser()
 
     json_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
 
     df = reader.evtx_to_df(json_path)
-
-    print(df.iloc[0:2].to_json())
 
     expected = {
         "event_record_id": {
@@ -258,9 +257,19 @@ def test_evtx_to_df():
 
     pd.testing.assert_frame_equal(expected, df)
 
+    # Check with chunk
+    iterator_df = reader.evtx_to_df(json_path, iterable=True)
+
+    df1 = next(iterator_df)
+    df2 = next(iterator_df)
+    df = pd.concat([df1, df2], axis=0).reset_index(drop=True)
+
+    expected = expected.loc[:, df.columns].reset_index(drop=True)
+    pd.testing.assert_frame_equal(expected, df, check_dtype=False)
+
 
 def test_dict_to_df(example_dict):
-    reader = EvtxJsonParser()
+    reader = EvtxParser()
 
     df = reader.dict_to_df(example_dict)
 
