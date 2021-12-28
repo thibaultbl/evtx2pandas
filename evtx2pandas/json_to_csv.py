@@ -14,7 +14,7 @@ class EvtxParser:
 
     def evtx_to_csv(self, evtx_path: str, output_path: str, nrows: int = math.inf):
         df = self.evtx_to_df(evtx_path, nrows)
-        df.to_csv(output_path)
+        df.to_csv(output_path, index=False)
 
     def _df_chunck(self, mydict: Dict[Any, Any]) -> Iterable[pd.DataFrame]:
         for row in mydict:
