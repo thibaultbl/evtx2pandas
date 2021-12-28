@@ -2,13 +2,12 @@ import os
 
 import numpy as np
 import pandas as pd
-import pathlib
 
-from evtx2pandas.json_to_csv import evtxJsonParser
+from evtx2pandas.json_to_csv import EvtxJsonParser
 
 
 def test_evtx_to_df():
-    reader = evtxJsonParser()
+    reader = EvtxJsonParser()
 
     json_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
 
@@ -261,7 +260,7 @@ def test_evtx_to_df():
 
 
 def test_dict_to_df(example_dict):
-    reader = evtxJsonParser()
+    reader = EvtxJsonParser()
 
     df = reader.dict_to_df(example_dict)
 
