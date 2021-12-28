@@ -12,8 +12,8 @@ class EvtxParser:
     # def evtx_to_dask_dd(self, evtx_path: str, nrows: int = math.inf) -> dd:
     # pass
 
-    def evtx_to_csv(self, evtx_path: str, output_path: str, nrows: int = math.inf):
-        df = self.evtx_to_df(evtx_path, nrows)
+    def evtx_to_csv(self, evtx_path: str, output_path: str, nrows: int = math.inf, iterable: bool = False):
+        df = self.evtx_to_df(evtx_path, nrows, iterable=iterable)
         df.to_csv(output_path, index=False)
 
     def _df_chunck(self, mydict: Dict[Any, Any]) -> Iterable[pd.DataFrame]:
@@ -26,10 +26,10 @@ class EvtxParser:
                    iterable: bool = False) -> Union[pd.DataFrame, Iterable[pd.DataFrame]]:
         mydict = self.evtx_to_dict(evtx_path, nrows)
 
-        if iterable is False:
-            return self.dict_to_df(mydict)
-        else:
+        if iterable:
             return self._df_chunck(mydict)
+        else:
+            return self.dict_to_df(mydict)
 
     def evtx_to_dict(self, evtx_path: str, nrows: int = math.inf) -> Iterable[Dict[Any, Any]]:
         parser = PyEvtxParser(evtx_path)

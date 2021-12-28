@@ -290,5 +290,6 @@ def expected_df():
     }
 
     expected = pd.DataFrame(expected).reset_index(drop=True)
+    expected = expected.astype({"event_record_id": object})
 
     return expected

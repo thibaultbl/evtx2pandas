@@ -14,6 +14,8 @@ def test_evtx_to_csv(tmpdir, expected_df):
 
     temp_file = tmpdir.mkdir("sub").join("evtx.csv")
 
+    temp_file = "/tmp/test.csv"
+
     reader.evtx_to_csv(json_path, output_path=temp_file)
 
     df = pd.read_csv(temp_file).head(2)
@@ -31,7 +33,7 @@ def test_evtx_to_df(expected_df):
 
     df = df.iloc[0:2].reset_index(drop=True)  # Checking only the first two rows
 
-    pd.testing.assert_frame_equal(expected_df, df)
+    pd.testing.assert_frame_equal(expected_df, df, check_dtype=False)
 
     # Check with chunk
     iterator_df = reader.evtx_to_df(json_path, iterable=True)
