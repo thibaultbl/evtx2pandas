@@ -8,10 +8,8 @@ jobs:
         # working-directory: /home/runner/work/evtx2pandas
         shell: bash
     steps:
-      - name: List files in the repository
-        shell: sh
-        run: |
-          ls ${{ github.workspace }}
+      - name: Check out repository code
+        uses: actions/checkout@v2
       - run: ls
       - run: pwd
       - run: pip install -r requirements.txt
