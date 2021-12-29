@@ -13,14 +13,12 @@ def test_evtx_to_dask(tmpdir, expected_df):
     json_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
 
     dask_dd = reader.evtx_to_dask(json_path)
-    print(dask_dd.npartitions)
-    print(dask_dd)
     print(dask_dd.shape[0].compute())
     dask_dd = dask_dd.repartition(npartitions=3)
-    print(dask_dd.npartitions)
-    print(dask_dd["data"].apply(pd.json_normalize))
+    df = dask_dd.compute()
 
-    assert 1 == 2
+    expected_df.loc[:, "data.Event.EventData.RuleName"] = [np.nan, np.nan]
+    pd.testing.assert_frame_equal(expected_df, df.iloc[0:2, :], check_dtype=False)
 
 
 def test_evtx_to_json(tmpdir, expected_df):

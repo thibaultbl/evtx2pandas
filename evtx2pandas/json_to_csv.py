@@ -13,8 +13,21 @@ from evtx import PyEvtxParser
 class EvtxParser:
     def evtx_to_dask(self, evtx_path: Union[str, List[str]], nrows: int = math.inf, **kwargs) -> dd:
         filepath = f"/tmp/{str(uuid.uuid4())}"
-        self.evtx_to_json(evtx_path, filepath, nrows)
-        dask_df = dd.read_json(filepath, orient="record", **kwargs)
+        self.evtx_to_csv(evtx_path, filepath, nrows)
+        dask_df = dd.read_csv(filepath,
+                              sep=";",
+                              dtype={
+                                  'data.Event.EventData.CallTrace': 'object',
+                                  'data.Event.EventData.CreationUtcTime': 'object',
+                                  'data.Event.EventData.GrantedAccess': 'object',
+                                  'data.Event.EventData.SourceImage': 'object',
+                                  'data.Event.EventData.SourceProcessGUID': 'object',
+                                  'data.Event.EventData.TargetFilename': 'object',
+                                  'data.Event.EventData.TargetImage': 'object',
+                                  'data.Event.EventData.TargetProcessGUID': 'object',
+                                  'data.Event.EventData.ProcessId': float
+                              },
+                              **kwargs)
         # dask_df = dask_df["data"].apply(pd.json_normalize)
         return dask_df
 
