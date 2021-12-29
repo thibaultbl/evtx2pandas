@@ -9,6 +9,7 @@ jobs:
         shell: bash
     steps:
       - name: List files in the repository
+        shell: sh
         run: |
           ls ${{ github.workspace }}
       - run: ls
