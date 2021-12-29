@@ -67,16 +67,16 @@ def test_evtx_to_csv(tmpdir, expected_df):
 def test_evtx_to_df(expected_df):
     reader = EvtxParser()
 
-    json_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
+    evtx_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
 
-    df = reader.evtx_to_df(json_path)
+    df = reader.evtx_to_df(evtx_path)
 
     df = df.iloc[0:2].reset_index(drop=True)  # Checking only the first two rows
 
     pd.testing.assert_frame_equal(expected_df, df, check_dtype=False)
 
     # Check with chunk
-    iterator_df = reader.evtx_to_df(json_path, iterable=True)
+    iterator_df = reader.evtx_to_df(evtx_path, iterable=True)
 
     df1 = next(iterator_df)
     df2 = next(iterator_df)
