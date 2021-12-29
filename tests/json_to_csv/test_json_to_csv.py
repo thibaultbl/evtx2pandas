@@ -10,9 +10,9 @@ from evtx2pandas.json_to_csv import EvtxParser
 def test_evtx_to_dask(tmpdir, expected_df):
     reader = EvtxParser()
 
-    json_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
+    evtx_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
 
-    dask_dd = reader.evtx_to_dask(json_path)
+    dask_dd = reader.evtx_to_dask(evtx_path)
     print(dask_dd.shape[0].compute())
     dask_dd = dask_dd.repartition(npartitions=3)
     df = dask_dd.compute()

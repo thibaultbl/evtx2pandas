@@ -16,34 +16,27 @@ from evtx import PyEvtxParser
 class EvtxParser:
     """[summary]
     """
-    def evtx_to_dask(self,
-                     evtx_path: Union[str, List[str]],
-                     nrows: int = math.inf,
-                     **kwargs) -> dd:
+    def evtx_to_dask(self, evtx_path: Union[str, List[str]], nrows: int = math.inf, **kwargs) -> dd:
         filepath = f"/tmp/{str(uuid.uuid4())}"
-        self.evtx_to_csv(evtx_path, filepath, nrows)
-        dask_df = dd.read_csv(
-            filepath,
-            sep=";",
-            dtype={
-                'data.Event.EventData.CallTrace': 'object',
-                'data.Event.EventData.CreationUtcTime': 'object',
-                'data.Event.EventData.GrantedAccess': 'object',
-                'data.Event.EventData.SourceImage': 'object',
-                'data.Event.EventData.SourceProcessGUID': 'object',
-                'data.Event.EventData.TargetFilename': 'object',
-                'data.Event.EventData.TargetImage': 'object',
-                'data.Event.EventData.TargetProcessGUID': 'object',
-                'data.Event.EventData.ProcessId': float
-            },
-            **kwargs)
+        self.evtx_to_csv(evtx_path, filepath, nrows, iterable=True)
+        dask_df = dd.read_csv(filepath,
+                              sep=";",
+                              dtype={
+                                  'data.Event.EventData.CallTrace': 'object',
+                                  'data.Event.EventData.CreationUtcTime': 'object',
+                                  'data.Event.EventData.GrantedAccess': 'object',
+                                  'data.Event.EventData.SourceImage': 'object',
+                                  'data.Event.EventData.SourceProcessGUID': 'object',
+                                  'data.Event.EventData.TargetFilename': 'object',
+                                  'data.Event.EventData.TargetImage': 'object',
+                                  'data.Event.EventData.TargetProcessGUID': 'object',
+                                  'data.Event.EventData.ProcessId': float
+                              },
+                              **kwargs)
         # dask_df = dask_df["data"].apply(pd.json_normalize)
         return dask_df
 
-    def evtx_to_json(self,
-                     evtx_path: str,
-                     output_path: str,
-                     nrows: int = math.inf):
+    def evtx_to_json(self, evtx_path: str, output_path: str, nrows: int = math.inf):
         mydict = self.evtx_to_dict(evtx_path, nrows)
         with open(output_path, 'w+') as fp:
             fp.write("[")
@@ -66,25 +59,16 @@ class EvtxParser:
             temp_filepath = f"/tmp/{str(uuid.uuid4())}"
 
             row = next(df)
-            row.to_csv(temp_filepath,
-                       index=False,
-                       mode="w",
-                       sep=sep,
-                       header=None)
+            row.to_csv(temp_filepath, index=False, mode="w", sep=sep, header=None)
             columns = list(row.columns)
             for row in df:
                 new_columns = list(set(row.columns) - set(columns))
                 columns = columns + new_columns
                 row.loc[:, new_columns] = np.nan
-                row.to_csv(temp_filepath,
-                           index=False,
-                           mode="a",
-                           header=None,
-                           sep=sep)
+                row.to_csv(temp_filepath, index=False, mode="a", header=None, sep=sep)
 
-            with open(
-                    temp_filepath
-            ) as file:  # Need to rewrite the whole file to have the header with all columns in order
+            with open(temp_filepath
+                      ) as file:  # Need to rewrite the whole file to have the header with all columns in order
                 with open(output_path, "w") as outputfile:
                     outputfile.write(f"{sep}".join(columns) + " \n")
                     for row in file:
@@ -100,8 +84,7 @@ class EvtxParser:
     def evtx_to_df(self,
                    evtx_path: str,
                    nrows: int = math.inf,
-                   iterable: bool = False
-                   ) -> Union[pd.DataFrame, Iterable[pd.DataFrame]]:
+                   iterable: bool = False) -> Union[pd.DataFrame, Iterable[pd.DataFrame]]:
         mydict = self.evtx_to_dict(evtx_path, nrows)
 
         if iterable:
@@ -109,14 +92,11 @@ class EvtxParser:
         else:
             return self.dict_to_df(mydict)
 
-    def evtx_to_dict(self,
-                     evtx_path: str,
-                     nrows: int = math.inf) -> Iterable[Dict[Any, Any]]:
+    def evtx_to_dict(self, evtx_path: str, nrows: int = math.inf) -> Iterable[Dict[Any, Any]]:
         parser = PyEvtxParser(evtx_path)
 
         for i, record in enumerate(parser.records_json()):
-            record["data"] = json.loads(
-                record["data"])  # Parsing "data" field as json
+            record["data"] = json.loads(record["data"])  # Parsing "data" field as json
 
             yield record
 
