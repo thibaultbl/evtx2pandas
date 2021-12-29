@@ -4,6 +4,8 @@ jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
+      - run: ls
+      - run: pwd
       - run: pip install -r requirements.txt
       - run: pip install pylint yapf pytest
       - run: pylint
