@@ -82,8 +82,8 @@ def expected_df():
             "1": "365ABB72-39CB-5CE3-0000-001046AA0000"
         },
         "data.Event.EventData.ProcessId": {
-            "0": 816.0,
-            "1": 816.0
+            "0": 816,
+            "1": 816
         },
         "data.Event.EventData.RuleName": {
             "0": "",
@@ -290,6 +290,6 @@ def expected_df():
     }
 
     expected = pd.DataFrame(expected).reset_index(drop=True)
-    expected = expected.astype({"event_record_id": object})
+    # expected = expected.astype({"event_record_id": object, "data.Event.EventData.ProcessId": object})
 
     return expected
