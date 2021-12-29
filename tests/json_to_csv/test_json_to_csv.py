@@ -13,12 +13,16 @@ def test_evtx_to_dask(tmpdir, expected_df):
     evtx_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
 
     dask_dd = reader.evtx_to_dask(evtx_path)
-    print(dask_dd.shape[0].compute())
+
     dask_dd = dask_dd.repartition(npartitions=3)
+
     df = dask_dd.compute()
 
     expected_df.loc[:, "data.Event.EventData.RuleName"] = [np.nan, np.nan]
-    pd.testing.assert_frame_equal(expected_df, df.iloc[0:2, :], check_dtype=False)
+
+    df.columns = [x.strip() for x in df.columns]
+
+    pd.testing.assert_frame_equal(expected_df, df.iloc[0:2, :], check_dtype=True, check_like=True)
 
 
 def test_evtx_to_json(tmpdir, expected_df):
@@ -46,22 +50,23 @@ def test_evtx_to_csv(tmpdir, expected_df):
 
     reader.evtx_to_csv(json_path, output_path=temp_file)
 
-    df = pd.read_csv(temp_file, sep=";").head(2)
+    df = pd.read_csv(temp_file, sep=";")
 
     expected_df.loc[:, "data.Event.EventData.RuleName"] = [np.nan, np.nan]
-    pd.testing.assert_frame_equal(expected_df, df, check_dtype=False)
+    pd.testing.assert_frame_equal(expected_df, df.head(2), check_dtype=False)
 
     # With iterable
     temp_file = "/tmp/test.csv"  # TODO: to delete
+
     sep = "$"
     reader.evtx_to_csv(json_path, output_path=temp_file, iterable=True, sep=sep)
 
-    df = pd.read_csv(temp_file, sep=sep, dtype={"data.Event.EventData.ProcessId": int}, nrows=2)
+    df = pd.read_csv(temp_file, sep=sep).head(2)
     df.columns = [x.strip() for x in df.columns]
 
     expected_df.loc[:, "data.Event.EventData.RuleName"] = [np.nan, np.nan]
 
-    pd.testing.assert_frame_equal(expected_df, df, check_dtype=False, check_like=True)
+    pd.testing.assert_frame_equal(expected_df, df, check_dtype=True, check_like=True)
 
 
 def test_evtx_to_df(expected_df):

@@ -18,22 +18,30 @@ class EvtxParser:
     """
     def evtx_to_dask(self, evtx_path: Union[str, List[str]], nrows: int = math.inf, **kwargs) -> dd:
         filepath = f"/tmp/{str(uuid.uuid4())}"
-        self.evtx_to_csv(evtx_path, filepath, nrows, iterable=True)
+        print(filepath)  # TODO: to delete
+
+        self.evtx_to_csv(evtx_path, filepath, nrows, iterable=True, sep="$")
         dask_df = dd.read_csv(filepath,
-                              sep=";",
+                              sep="$",
                               dtype={
                                   'data.Event.EventData.CallTrace': 'object',
                                   'data.Event.EventData.CreationUtcTime': 'object',
+                                  'data.Event.EventData.CreationUtcTime ': 'object',
                                   'data.Event.EventData.GrantedAccess': 'object',
                                   'data.Event.EventData.SourceImage': 'object',
                                   'data.Event.EventData.SourceProcessGUID': 'object',
                                   'data.Event.EventData.TargetFilename': 'object',
+                                  'data.Event.EventData.TargetFilename ': 'object',
                                   'data.Event.EventData.TargetImage': 'object',
                                   'data.Event.EventData.TargetProcessGUID': 'object',
-                                  'data.Event.EventData.ProcessId': float
+                                  'data.Event.System.Opcode': int,
+                                  'data.Event.System.Version': 'object',
+                                  'data.Event.EventData.ProcessId': float,
+                                  "data.Event.System.Version": int
                               },
                               **kwargs)
-        # dask_df = dask_df["data"].apply(pd.json_normalize)
+        dask_df.columns = [x.strip() for x in dask_df.columns]  # Some columns name contains space
+
         return dask_df
 
     def evtx_to_json(self, evtx_path: str, output_path: str, nrows: int = math.inf):
@@ -48,6 +56,12 @@ class EvtxParser:
 
             fp.write("] \n")
 
+    @classmethod
+    def _treat_df_for_csv(cls, df):
+        df.loc[:, "data.Event.EventData.ProcessId"] = df.loc[:, "data.Event.EventData.ProcessId"].astype('Int32').map(
+            lambda x: str(x))
+        return df
+
     def evtx_to_csv(self,
                     evtx_path: str,
                     output_path: str,
@@ -59,12 +73,17 @@ class EvtxParser:
             temp_filepath = f"/tmp/{str(uuid.uuid4())}"
 
             row = next(df)
+            row = self._treat_df_for_csv(row)
             row.to_csv(temp_filepath, index=False, mode="w", sep=sep, header=None)
             columns = list(row.columns)
             for row in df:
                 new_columns = list(set(row.columns) - set(columns))
+                old_columns_not_in_df = list(set(columns) - set(row.columns))
                 columns = columns + new_columns
-                row.loc[:, new_columns] = np.nan
+                row.loc[:, old_columns_not_in_df] = np.nan
+
+                row = row.loc[:, columns]  # reorder columns
+                row = self._treat_df_for_csv(row)
                 row.to_csv(temp_filepath, index=False, mode="a", header=None, sep=sep)
 
             with open(temp_filepath
@@ -75,6 +94,7 @@ class EvtxParser:
                         outputfile.write(row)
 
         else:
+            df = self._treat_df_for_csv(df)
             df.to_csv(output_path, index=False, sep=sep)
 
     def _df_chunck(self, mydict: Dict[Any, Any]) -> Iterable[pd.DataFrame]:
