@@ -56,12 +56,6 @@ class EvtxParser:
 
             fp.write("] \n")
 
-    @classmethod
-    def _treat_df_for_csv(cls, df):
-        df.loc[:, "data.Event.EventData.ProcessId"] = df.loc[:, "data.Event.EventData.ProcessId"].astype('Int32').map(
-            lambda x: str(x))
-        return df
-
     def evtx_to_csv(self,
                     evtx_path: str,
                     output_path: str,
@@ -73,7 +67,6 @@ class EvtxParser:
             temp_filepath = f"/tmp/{str(uuid.uuid4())}"
 
             row = next(df)
-            row = self._treat_df_for_csv(row)
             row.to_csv(temp_filepath, index=False, mode="w", sep=sep, header=None)
             columns = list(row.columns)
             for row in df:
@@ -83,7 +76,6 @@ class EvtxParser:
                 row.loc[:, old_columns_not_in_df] = np.nan
 
                 row = row.loc[:, columns]  # reorder columns
-                row = self._treat_df_for_csv(row)
                 row.to_csv(temp_filepath, index=False, mode="a", header=None, sep=sep)
 
             with open(temp_filepath
@@ -94,7 +86,6 @@ class EvtxParser:
                         outputfile.write(row)
 
         else:
-            df = self._treat_df_for_csv(df)
             df.to_csv(output_path, index=False, sep=sep)
 
     def _df_chunck(self, mydict: Dict[Any, Any]) -> Iterable[pd.DataFrame]:
