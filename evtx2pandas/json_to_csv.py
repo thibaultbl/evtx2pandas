@@ -1,3 +1,6 @@
+"""Evtx parser
+"""
+
 import math
 import json
 import uuid
@@ -11,6 +14,8 @@ from evtx import PyEvtxParser
 
 
 class EvtxParser:
+    """[summary]
+    """
     def evtx_to_dask(self, evtx_path: Union[str, List[str]], nrows: int = math.inf, **kwargs) -> dd:
         filepath = f"/tmp/{str(uuid.uuid4())}"
         self.evtx_to_csv(evtx_path, filepath, nrows)
