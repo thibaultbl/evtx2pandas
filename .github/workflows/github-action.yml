@@ -9,8 +9,8 @@ jobs:
         shell: bash
     steps:
       - name: List files in the repository
-          run: |
-            ls ${{ github.workspace }}
+        run: |
+          ls ${{ github.workspace }}
       - run: ls
       - run: pwd
       - run: pip install -r requirements.txt
