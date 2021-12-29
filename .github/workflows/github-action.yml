@@ -3,8 +3,7 @@ on: [push]
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
-    env:
-      working-directory: /home/runner/work/evtx2pandas
+    working-directory: /home/runner/work/evtx2pandas
     steps:
       - run: ls
       - run: pwd
