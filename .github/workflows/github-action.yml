@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: /home/runner/work/evtx2pandas
+        # working-directory: /home/runner/work/evtx2pandas
         shell: bash
     steps:
       - run: ls
