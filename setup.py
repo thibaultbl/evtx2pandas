@@ -20,6 +20,7 @@ setup(
     url="http://packages.python.org/evtx2pandas",
     packages=["evtx2pandas"],
     long_description=read('README.rst'),
+    install_requires=['pytest>=6.2.5', 'pandas>=1.3.5', 'evtx>=0.6.11', 'dask>=2021.12.0'],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
