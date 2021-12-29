@@ -12,12 +12,12 @@ def read(fname):
 
 setup(
     name="evtx2pandas",
-    version="0.0.1",
+    version="0.0.3",
     author="Thibault Blanc",
     description=("Convert EVTX to pandas DataFrame."),
     license="GNU General Public License",
     keywords="evtx pandas Event logs",
-    url="http://packages.python.org/evtx2pandas",
+    url="https://github.com/thibaultbl/evtx2pandas",
     packages=["evtx2pandas"],
     long_description=read('README.rst'),
     install_requires=['pytest>=6.2.5', 'pandas>=1.3.5', 'evtx>=0.6.11', 'dask>=2021.12.0'],
