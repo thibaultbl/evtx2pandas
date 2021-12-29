@@ -1,4 +1,4 @@
-name: GitHub Actions Demo
+name: GitHub Actions
 on: [push]
 jobs:
   Explore-GitHub-Actions:
@@ -8,6 +8,9 @@ jobs:
         # working-directory: /home/runner/work/evtx2pandas
         shell: bash
     steps:
+      - name: List files in the repository
+          run: |
+            ls ${{ github.workspace }}
       - run: ls
       - run: pwd
       - run: pip install -r requirements.txt
