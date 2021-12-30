@@ -94,10 +94,7 @@ class EvtxParser:
         data['event_record_id'] = dask_df["Record"]
         return data
 
-    def evtx_to_json(self,
-                     evtx_path: str,
-                     output_path: str = None,
-                     nrows: int = math.inf):
+    def evtx_to_json(self, evtx_path: str, output_path: str = None, nrows: int = math.inf):
         if output_path is None:
             output_path = f"/tmp/{str(uuid.uuid4())}"
 
@@ -106,8 +103,7 @@ class EvtxParser:
 
         return output_path
 
-    def _write_chunck(self, chuncks: List[pd.DataFrame], columns: List[str],
-                      temp_filepath: str, sep: str):
+    def _write_chunck(self, chuncks: List[pd.DataFrame], columns: List[str], temp_filepath: str, sep: str):
         temp_df = pd.concat(chuncks, axis=0)
         new_columns = list(set(temp_df.columns) - set(columns))
         old_columns_not_in_df = list(set(columns) - set(temp_df.columns))
@@ -116,11 +112,7 @@ class EvtxParser:
 
         temp_df = temp_df.loc[:, columns]  # reorder columns
 
-        temp_df.to_csv(temp_filepath,
-                       index=False,
-                       mode="a",
-                       header=None,
-                       sep=sep)
+        temp_df.to_csv(temp_filepath, index=False, mode="a", header=None, sep=sep)
         return columns
 
     def evtx_to_csv(self,
@@ -128,31 +120,28 @@ class EvtxParser:
                     output_path: str,
                     nrows: int = math.inf,
                     iterable: bool = False,
-                    sep: str = ","):
+                    sep: str = ",",
+                    chunck_size: int = 500):
         df = self.evtx_to_df(evtx_path, nrows, iterable=iterable)
         if iterable:
             temp_filepath = f"/tmp/{str(uuid.uuid4())}"
 
             row = next(df)
-            row.to_csv(temp_filepath,
-                       index=False,
-                       mode="w",
-                       sep=sep,
-                       header=None)
+            row.to_csv(temp_filepath, index=False, mode="w", sep=sep, header=None)
             columns = list(row.columns)
-            for row in df:
-                new_columns = list(set(row.columns) - set(columns))
-                columns = columns + new_columns
-                row.loc[:, new_columns] = np.nan
-                row.to_csv(temp_filepath,
-                           index=False,
-                           mode="a",
-                           header=None,
-                           sep=sep)
 
-            with open(
-                    temp_filepath
-            ) as file:  # Need to rewrite the whole file to have the header with all columns in order
+            chuncks = []
+            for i, row in enumerate(df):
+                chuncks.append(row)
+
+                if len(chuncks) >= chunck_size:
+                    columns = self._write_chunck(chuncks, columns, temp_filepath, sep)
+                    chuncks = []
+
+            columns = self._write_chunck(chuncks, columns, temp_filepath, sep)
+
+            with open(temp_filepath
+                      ) as file:  # Need to rewrite the whole file to have the header with all columns in order
                 with open(output_path, "w") as outputfile:
                     outputfile.write(f"{sep}".join(columns) + " \n")
                     for row in file:
@@ -168,8 +157,7 @@ class EvtxParser:
     def evtx_to_df(self,
                    evtx_path: str,
                    nrows: int = math.inf,
-                   iterable: bool = False
-                   ) -> Union[pd.DataFrame, Iterable[pd.DataFrame]]:
+                   iterable: bool = False) -> Union[pd.DataFrame, Iterable[pd.DataFrame]]:
         mydict = self.evtx_to_dict(evtx_path, nrows)
 
         if iterable:
@@ -177,14 +165,11 @@ class EvtxParser:
         else:
             return self.dict_to_df(mydict)
 
-    def evtx_to_dict(self,
-                     evtx_path: str,
-                     nrows: int = math.inf) -> Iterable[Dict[Any, Any]]:
+    def evtx_to_dict(self, evtx_path: str, nrows: int = math.inf) -> Iterable[Dict[Any, Any]]:
         parser = PyEvtxParser(evtx_path)
 
         for i, record in enumerate(parser.records_json()):
-            record["data"] = json.loads(
-                record["data"])  # Parsing "data" field as json
+            record["data"] = json.loads(record["data"])  # Parsing "data" field as json
 
             yield record
 
