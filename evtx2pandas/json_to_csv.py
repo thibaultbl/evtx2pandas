@@ -94,7 +94,10 @@ class EvtxParser:
         data['event_record_id'] = dask_df["Record"]
         return data
 
-    def evtx_to_json(self, evtx_path: str, output_path: str = None, nrows: int = math.inf):
+    def evtx_to_json(self,
+                     evtx_path: str,
+                     output_path: str = None,
+                     nrows: int = math.inf):
         if output_path is None:
             output_path = f"/tmp/{str(uuid.uuid4())}"
 
@@ -103,7 +106,8 @@ class EvtxParser:
 
         return output_path
 
-    def _write_chunck(self, chuncks: List[pd.DataFrame], columns: List[str], temp_filepath: str, sep: str):
+    def _write_chunck(self, chuncks: List[pd.DataFrame], columns: List[str],
+                      temp_filepath: str, sep: str):
         temp_df = pd.concat(chuncks, axis=0)
         new_columns = list(set(temp_df.columns) - set(columns))
         old_columns_not_in_df = list(set(columns) - set(temp_df.columns))
@@ -112,7 +116,11 @@ class EvtxParser:
 
         temp_df = temp_df.loc[:, columns]  # reorder columns
 
-        temp_df.to_csv(temp_filepath, index=False, mode="a", header=None, sep=sep)
+        temp_df.to_csv(temp_filepath,
+                       index=False,
+                       mode="a",
+                       header=None,
+                       sep=sep)
         return columns
 
     def evtx_to_csv(self, evtx_path: str, output_path: str, sep: str = ","):
@@ -123,14 +131,19 @@ class EvtxParser:
         for row in mydict:
             yield self.dict_to_df(row)
 
-    def evtx_to_df(self, evtx_path: str) -> Union[pd.DataFrame, Iterable[pd.DataFrame]]:
+    def evtx_to_df(
+            self,
+            evtx_path: str) -> Union[pd.DataFrame, Iterable[pd.DataFrame]]:
         return self.evtx_to_dask(evtx_path).compute()
 
-    def evtx_to_dict(self, evtx_path: str, nrows: int = math.inf) -> Iterable[Dict[Any, Any]]:
+    def evtx_to_dict(self,
+                     evtx_path: str,
+                     nrows: int = math.inf) -> Iterable[Dict[Any, Any]]:
         parser = PyEvtxParser(evtx_path)
 
         for i, record in enumerate(parser.records_json()):
-            record["data"] = json.loads(record["data"])  # Parsing "data" field as json
+            record["data"] = json.loads(
+                record["data"])  # Parsing "data" field as json
 
             yield record
 
