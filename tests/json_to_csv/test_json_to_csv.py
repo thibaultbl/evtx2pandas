@@ -14,30 +14,14 @@ def test_evtx_to_dask(tmpdir, expected_df):
 
     dask_dd = reader.evtx_to_dask(evtx_path)
 
-    dask_dd = dask_dd.repartition(npartitions=3)
-
     df = dask_dd.compute()
-
-    expected_df.loc[:, "data.Event.EventData.RuleName"] = [np.nan, np.nan]
 
     df.columns = [x.strip() for x in df.columns]
 
-    pd.testing.assert_frame_equal(expected_df, df.iloc[0:2, :], check_dtype=True, check_like=True)
+    df = df.sort_values(by="event_record_id", ascending=False).reset_index(drop=True)
+    expected_df = expected_df.sort_values(by="event_record_id", ascending=False).reset_index(drop=True)
 
-
-def test_evtx_to_json(tmpdir, expected_df):
-    reader = EvtxParser()
-
-    json_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
-
-    temp_file = tmpdir.mkdir("sub").join("evtx.json")
-
-    reader.evtx_to_json(json_path, output_path=temp_file)
-
-    mydict = json.load(open(temp_file))
-    res = pd.json_normalize(mydict)
-
-    pd.testing.assert_frame_equal(expected_df, res.iloc[0:2, :], check_dtype=False)
+    pd.testing.assert_frame_equal(expected_df, df.iloc[0:2, :], check_dtype=False, check_like=True)
 
 
 def test_evtx_to_csv(tmpdir, expected_df):
@@ -45,28 +29,19 @@ def test_evtx_to_csv(tmpdir, expected_df):
 
     json_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
 
-    temp_file = tmpdir.mkdir("sub").join("evtx.csv")
-    temp_file = "/tmp/test.csv"  # TODO: to delete
+    temp_file = tmpdir.mkdir("sub").join("evtx")
+    temp_file = "/tmp/evtx"
 
     reader.evtx_to_csv(json_path, output_path=temp_file)
 
-    df = pd.read_csv(temp_file, sep=";")
+    df = pd.read_csv(temp_file + "/0.part", sep=",")
 
-    expected_df.loc[:, "data.Event.EventData.RuleName"] = [np.nan, np.nan]
+    df = df.sort_values(by="event_record_id", ascending=False).reset_index(drop=True)
+    expected_df = expected_df.sort_values(by="event_record_id", ascending=False).reset_index(drop=True)
+
+    expected_df.loc[:, "Event.EventData.RuleName"] = [np.nan, np.nan]
+
     pd.testing.assert_frame_equal(expected_df, df.head(2), check_dtype=False)
-
-    # With iterable
-    temp_file = "/tmp/test.csv"  # TODO: to delete
-
-    sep = "$"
-    reader.evtx_to_csv(json_path, output_path=temp_file, iterable=True, sep=sep)
-
-    df = pd.read_csv(temp_file, sep=sep).head(2)
-    df.columns = [x.strip() for x in df.columns]
-
-    expected_df.loc[:, "data.Event.EventData.RuleName"] = [np.nan, np.nan]
-
-    pd.testing.assert_frame_equal(expected_df, df, check_dtype=True, check_like=True)
 
 
 def test_evtx_to_df(expected_df):
@@ -76,20 +51,10 @@ def test_evtx_to_df(expected_df):
 
     df = reader.evtx_to_df(evtx_path)
 
-    df = df.iloc[0:2].reset_index(drop=True)  # Checking only the first two rows
+    df = df.sort_values(by="event_record_id", ascending=False).reset_index(drop=True)
+    expected_df = expected_df.sort_values(by="event_record_id", ascending=False).reset_index(drop=True)
 
-    pd.testing.assert_frame_equal(expected_df, df, check_dtype=False)
-
-    # Check with chunk
-    iterator_df = reader.evtx_to_df(evtx_path, iterable=True)
-
-    df1 = next(iterator_df)
-    df2 = next(iterator_df)
-    df = pd.concat([df1, df2], axis=0).reset_index(drop=True)
-
-    expected = expected_df.loc[:, df.columns].reset_index(drop=True)
-
-    pd.testing.assert_frame_equal(expected, df, check_dtype=False)
+    pd.testing.assert_frame_equal(expected_df, df.iloc[0:2], check_dtype=False)
 
 
 def test_dict_to_df(example_dict):

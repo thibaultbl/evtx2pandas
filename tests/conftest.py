@@ -53,248 +53,298 @@ def example_dict():
 @fixture
 def expected_df():
     expected = {
-        "event_record_id": {
-            "0": 19,
-            "1": 18
+        'Event.EventData.CommandLine': {
+            0: np.nan,
+            1: np.nan
         },
-        "timestamp": {
-            "0": "1601-01-01 00:00:00 UTC",
-            "1": "2019-05-21 00:36:14.747769 UTC"
+        'Event.System.Keywords': {
+            0: '0x8000000000000000',
+            1: '0x8000000000000000'
         },
-        "data.Event.#attributes.xmlns": {
-            "0": "http://schemas.microsoft.com/win/2004/08/events/event",
-            "1": "http://schemas.microsoft.com/win/2004/08/events/event"
+        'Event.System.TimeCreated.#attributes.SystemTime': {
+            0: '2019-05-21T00:36:14.747769Z',
+            1: '2019-05-21T00:36:14.747769Z'
         },
-        "data.Event.EventData.Details": {
-            "0": "DWORD (0x00000000)",
-            "1": "DWORD (0x00000001)"
+        'Event.System.Version': {
+            0: 2,
+            1: 2
         },
-        "data.Event.EventData.EventType": {
-            "0": "SetValue",
-            "1": "SetValue"
+        'Event.EventData.LogonGuid': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.Image": {
-            "0": "C:\\Windows\\system32\\svchost.exe",
-            "1": "C:\\Windows\\system32\\svchost.exe"
+        'Event.EventData.Product': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.ProcessGuid": {
-            "0": "365ABB72-39CB-5CE3-0000-001046AA0000",
-            "1": "365ABB72-39CB-5CE3-0000-001046AA0000"
+        'Event.#attributes.xmlns': {
+            0: 'http://schemas.microsoft.com/win/2004/08/events/event',
+            1: 'http://schemas.microsoft.com/win/2004/08/events/event'
         },
-        "data.Event.EventData.ProcessId": {
-            "0": "816",
-            "1": "816"
+        'Event.EventData.ImageLoaded': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.RuleName": {
-            "0": "",
-            "1": ""
+        'Event.System.Security.#attributes.UserID': {
+            0: 'S-1-5-18',
+            1: 'S-1-5-18'
         },
-        "data.Event.EventData.TargetObject": {
-            "0":
-            "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\NetworkList\\Profiles\\{6ACC3724-ED52-4080-9712-AD6B9F4CD7E3}\\CategoryType",
-            "1":
-            "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\NetworkList\\Profiles\\{6ACC3724-ED52-4080-9712-AD6B9F4CD7E3}\\Category"
+        'Event.EventData.IntegrityLevel': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.UtcTime": {
-            "0": "2019-05-21 00:36:14.737",
-            "1": "2019-05-21 00:36:14.737"
+        'Event.System.Provider.#attributes.Name': {
+            0: 'Microsoft-Windows-Sysmon',
+            1: 'Microsoft-Windows-Sysmon'
         },
-        "data.Event.System.Channel": {
-            "0": "Microsoft-Windows-Sysmon/Operational",
-            "1": "Microsoft-Windows-Sysmon/Operational"
+        'Event.EventData.User': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.System.Computer": {
-            "0": "IEWIN7",
-            "1": "IEWIN7"
+        'Event.EventData.Description': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.System.Correlation": {
-            "0": None,
-            "1": None
+        'Event.System.Channel': {
+            0: 'Microsoft-Windows-Sysmon/Operational',
+            1: 'Microsoft-Windows-Sysmon/Operational'
         },
-        "data.Event.System.EventID": {
-            "0": 13,
-            "1": 13
+        'Event.EventData.CurrentDirectory': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.System.EventRecordID": {
-            "0": 388,
-            "1": 387
+        'Event.EventData.TargetProcessId': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.System.Execution.#attributes.ProcessID": {
-            "0": 3416,
-            "1": 3416
+        'Event.EventData.ParentProcessGuid': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.System.Execution.#attributes.ThreadID": {
-            "0": 3496,
-            "1": 3496
+        'Event.System.Correlation': {
+            0: None,
+            1: None
         },
-        "data.Event.System.Keywords": {
-            "0": "0x8000000000000000",
-            "1": "0x8000000000000000"
+        'Event.EventData.TargetObject': {
+            0:
+            'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\NetworkList\\Profiles\\{6ACC3724-ED52-4080-9712-AD6B9F4CD7E3}\\CategoryType',
+            1:
+            'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\NetworkList\\Profiles\\{6ACC3724-ED52-4080-9712-AD6B9F4CD7E3}\\Category'
         },
-        "data.Event.System.Level": {
-            "0": 4,
-            "1": 4
+        'Event.EventData.EventType': {
+            0: 'SetValue',
+            1: 'SetValue'
         },
-        "data.Event.System.Opcode": {
-            "0": 0,
-            "1": 0
+        'Event.EventData.CallTrace': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.System.Provider.#attributes.Guid": {
-            "0": "5770385F-C22A-43E0-BF4C-06F5698FFBD9",
-            "1": "5770385F-C22A-43E0-BF4C-06F5698FFBD9"
+        'Event.EventData.GrantedAccess': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.System.Provider.#attributes.Name": {
-            "0": "Microsoft-Windows-Sysmon",
-            "1": "Microsoft-Windows-Sysmon"
+        'Event.System.Task': {
+            0: 13,
+            1: 13
         },
-        "data.Event.System.Security.#attributes.UserID": {
-            "0": "S-1-5-18",
-            "1": "S-1-5-18"
+        'Event.EventData.Image': {
+            0: 'C:\\Windows\\system32\\svchost.exe',
+            1: 'C:\\Windows\\system32\\svchost.exe'
         },
-        "data.Event.System.Task": {
-            "0": 13,
-            "1": 13
+        'Event.EventData.RuleName': {
+            0: '',
+            1: ''
         },
-        "data.Event.System.TimeCreated.#attributes.SystemTime": {
-            "0": "2019-05-21T00:36:14.747769Z",
-            "1": "2019-05-21T00:36:14.747769Z"
+        'Event.EventData.TerminalSessionId': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.System.Version": {
-            "0": 2,
-            "1": 2
+        'Event.EventData.SourceThreadId': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.CommandLine": {
-            "0": None,
-            "1": None
+        'Event.System.EventID': {
+            0: 13,
+            1: 13
         },
-        "data.Event.EventData.Company": {
-            "0": None,
-            "1": None
+        'Event.EventData.UtcTime': {
+            0: '2019-05-21 00:36:14.737',
+            1: '2019-05-21 00:36:14.737'
         },
-        "data.Event.EventData.CurrentDirectory": {
-            "0": None,
-            "1": None
+        'Event.System.Computer': {
+            0: 'IEWIN7',
+            1: 'IEWIN7'
         },
-        "data.Event.EventData.Description": {
-            "0": None,
-            "1": None
+        'Event.EventData.Signature': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.FileVersion": {
-            "0": None,
-            "1": None
+        'Event.EventData.SourceProcessId': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.Hashes": {
-            "0": None,
-            "1": None
+        'Event.EventData.ProcessGuid': {
+            0: '365ABB72-39CB-5CE3-0000-001046AA0000',
+            1: '365ABB72-39CB-5CE3-0000-001046AA0000'
         },
-        "data.Event.EventData.IntegrityLevel": {
-            "0": None,
-            "1": None
+        'Event.System.Execution.#attributes.ProcessID': {
+            0: 3416,
+            1: 3416
         },
-        "data.Event.EventData.LogonGuid": {
-            "0": None,
-            "1": None
+        'Event.EventData.ParentCommandLine': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.LogonId": {
-            "0": None,
-            "1": None
+        'Event.EventData.Signed': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.ParentCommandLine": {
-            "0": None,
-            "1": None
+        'Event.EventData.LogonId': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.ParentImage": {
-            "0": None,
-            "1": None
+        'Event.EventData.ProcessId': {
+            0: 816.0,
+            1: 816.0
         },
-        "data.Event.EventData.ParentProcessGuid": {
-            "0": None,
-            "1": None
+        'Event.EventData.ParentImage': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.ParentProcessId": {
-            "0": np.nan,
-            "1": np.nan
+        'Event.EventData.SignatureStatus': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.Product": {
-            "0": None,
-            "1": None
+        'Event.EventData.SourceImage': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.TerminalSessionId": {
-            "0": np.nan,
-            "1": np.nan
+        'Event.EventData.FileVersion': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.User": {
-            "0": None,
-            "1": None
+        'Event.System.Opcode': {
+            0: 0,
+            1: 0
         },
-        "data.Event.EventData.ImageLoaded": {
-            "0": None,
-            "1": None
+        'Event.System.Execution.#attributes.ThreadID': {
+            0: 3496,
+            1: 3496
         },
-        "data.Event.EventData.Signature": {
-            "0": None,
-            "1": None
+        'Event.System.Level': {
+            0: 4,
+            1: 4
         },
-        "data.Event.EventData.SignatureStatus": {
-            "0": None,
-            "1": None
+        'Event.EventData.TargetImage': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.Signed": {
-            "0": None,
-            "1": None
+        'Event.EventData.TargetProcessGUID': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.CallTrace": {
-            "0": None,
-            "1": None
+        'Event.EventData.Company': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.GrantedAccess": {
-            "0": None,
-            "1": None
+        'Event.EventData.TargetFilename': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.SourceImage": {
-            "0": None,
-            "1": None
+        'Event.EventData.SourceProcessGUID': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.SourceProcessGUID": {
-            "0": None,
-            "1": None
+        'Event.EventData.ParentProcessId': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.SourceProcessId": {
-            "0": np.nan,
-            "1": np.nan
+        'Event.System.EventRecordID': {
+            0: 388,
+            1: 387
         },
-        "data.Event.EventData.SourceThreadId": {
-            "0": np.nan,
-            "1": np.nan
+        'Event.System.Provider.#attributes.Guid': {
+            0: '5770385F-C22A-43E0-BF4C-06F5698FFBD9',
+            1: '5770385F-C22A-43E0-BF4C-06F5698FFBD9'
         },
-        "data.Event.EventData.TargetImage": {
-            "0": None,
-            "1": None
+        'Event.EventData.Details': {
+            0: 'DWORD (0x00000000)',
+            1: 'DWORD (0x00000001)'
         },
-        "data.Event.EventData.TargetProcessGUID": {
-            "0": None,
-            "1": None
+        'Event.EventData.CreationUtcTime': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.TargetProcessId": {
-            "0": np.nan,
-            "1": np.nan
+        'Event.EventData.Hashes': {
+            0: np.nan,
+            1: np.nan
         },
-        "data.Event.EventData.CreationUtcTime": {
-            "0": None,
-            "1": None
-        },
-        "data.Event.EventData.TargetFilename": {
-            "0": None,
-            "1": None
+        'event_record_id': {
+            0: 19,
+            1: 18
         }
     }
 
     expected = pd.DataFrame(expected).reset_index(drop=True)
     expected = expected.astype({
-        "data.Event.EventData.ProcessId": float,
-        "data.Event.System.Correlation": float,
-        "data.Event.EventData.Signature": float,
-        # "data.Event.System.Opcode": "object"
+        'Event.EventData.CommandLine': 'object',
+        'Event.System.Keywords': 'object',
+        'Event.System.TimeCreated.#attributes.SystemTime': 'object',
+        'Event.System.Version': 'object',
+        'Event.EventData.LogonGuid': 'object',
+        'Event.EventData.Product': 'object',
+        'Event.#attributes.xmlns': 'object',
+        'Event.EventData.ImageLoaded': 'object',
+        'Event.System.Security.#attributes.UserID': 'object',
+        'Event.EventData.IntegrityLevel': 'object',
+        'Event.System.Provider.#attributes.Name': 'object',
+        'Event.EventData.User': 'object',
+        'Event.EventData.Description': 'object',
+        'Event.System.Channel': 'object',
+        'Event.EventData.CurrentDirectory': 'object',
+        'Event.EventData.TargetProcessId': 'object',
+        # 'event_record_id': 'object',
+        'Event.EventData.ParentProcessGuid': 'object',
+        'Event.System.Correlation': 'object',
+        'Event.EventData.TargetObject': 'object',
+        'Event.EventData.EventType': 'object',
+        'Event.EventData.CallTrace': 'float64',
+        'Event.EventData.GrantedAccess': 'float64',
+        'Event.System.Task': 'object',
+        'Event.EventData.Image': 'object',
+        'Event.EventData.RuleName': 'object',
+        'Event.EventData.TerminalSessionId': 'object',
+        'Event.EventData.SourceThreadId': 'object',
+        'Event.System.EventID': 'object',
+        'Event.EventData.UtcTime': 'object',
+        'Event.System.Computer': 'object',
+        'Event.EventData.Signature': 'object',
+        'Event.EventData.SourceProcessId': 'object',
+        'Event.EventData.ProcessGuid': 'object',
+        'Event.System.Execution.#attributes.ProcessID': 'object',
+        'Event.EventData.ParentCommandLine': 'object',
+        'Event.EventData.Signed': 'object',
+        'Event.EventData.LogonId': 'object',
+        'Event.EventData.ProcessId': 'object',
+        'Event.EventData.ParentImage': 'object',
+        'Event.EventData.SignatureStatus': 'object',
+        'Event.EventData.SourceImage': 'object',
+        # 'timestamp': 'object',
+        'Event.EventData.FileVersion': 'object',
+        'Event.System.Opcode': 'object',
+        'Event.System.Execution.#attributes.ThreadID': 'object',
+        'Event.System.Level': 'object',
+        'Event.EventData.TargetImage': 'object',
+        'Event.EventData.TargetProcessGUID': 'object',
+        'Event.EventData.Company': 'object',
+        'Event.EventData.TargetFilename': 'object',
+        'Event.EventData.SourceProcessGUID': 'object',
+        'Event.EventData.ParentProcessId': 'object',
+        'Event.System.EventRecordID': 'object',
+        'Event.System.Provider.#attributes.Guid': 'object',
+        'Event.EventData.Details': 'object',
+        'Event.EventData.CreationUtcTime': 'float64',
+        'Event.EventData.Hashes': 'object'
     })
 
     return expected
