@@ -30,18 +30,21 @@ def test_evtx_to_csv(tmpdir, expected_df):
     json_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
 
     temp_file = tmpdir.mkdir("sub").join("evtx")
-    temp_file = "/tmp/evtx"
+    temp_file = "/tmp/evtx.csv"
 
     reader.evtx_to_csv(json_path, output_path=temp_file)
 
-    df = pd.read_csv(temp_file + "/0.part", sep=",")
+    df = pd.read_csv(temp_file, sep=",")
 
     df = df.sort_values(by="event_record_id", ascending=False).reset_index(drop=True)
     expected_df = expected_df.sort_values(by="event_record_id", ascending=False).reset_index(drop=True)
 
     expected_df.loc[:, "Event.EventData.RuleName"] = [np.nan, np.nan]
 
-    pd.testing.assert_frame_equal(expected_df, df.head(2), check_dtype=False)
+    df.columns = [x.replace("data.", "") for x in df.columns]
+    df = df.drop("timestamp", axis=1)
+
+    pd.testing.assert_frame_equal(expected_df, df.head(2), check_dtype=False, check_names=False, check_like=True)
 
 
 def test_evtx_to_df(expected_df):
@@ -51,10 +54,13 @@ def test_evtx_to_df(expected_df):
 
     df = reader.evtx_to_df(evtx_path)
 
+    df = df.drop("timestamp", axis=1)
+    df.columns = [x.replace("data.", "") for x in df.columns]
+
     df = df.sort_values(by="event_record_id", ascending=False).reset_index(drop=True)
     expected_df = expected_df.sort_values(by="event_record_id", ascending=False).reset_index(drop=True)
 
-    pd.testing.assert_frame_equal(expected_df, df.iloc[0:2], check_dtype=False)
+    pd.testing.assert_frame_equal(expected_df, df.iloc[0:2], check_dtype=False, check_like=True)
 
 
 def test_dict_to_df(example_dict):
