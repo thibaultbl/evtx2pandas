@@ -6,8 +6,11 @@ import json
 import uuid
 
 import pandas as pd
+import pyarrow.parquet as pq
+import pyarrow as pa
 import numpy as np
 import dask.dataframe as dd
+import dask
 from typing import Dict, Iterable, Any, Union, List
 
 from evtx import PyEvtxParser
@@ -16,6 +19,114 @@ from evtx import PyEvtxParser
 class EvtxParser:
     """[summary]
     """
+    def evtx_to_dask2(self, evtx_path: str, **kwargs) -> dd:
+        parser = PyEvtxParser(evtx_path)
+
+        columns = [
+            'Event.#attributes.xmlns', 'Event.EventData.Details', 'Event.EventData.EventType', 'Event.EventData.Image',
+            'Event.EventData.ProcessGuid', 'Event.EventData.ProcessId', 'Event.EventData.RuleName',
+            'Event.EventData.TargetObject', 'Event.EventData.UtcTime', 'Event.System.Channel', 'Event.System.Computer',
+            'Event.System.Correlation', 'Event.System.EventID', 'Event.System.EventRecordID',
+            'Event.System.Execution.#attributes.ProcessID', 'Event.System.Execution.#attributes.ThreadID',
+            'Event.System.Keywords', 'Event.System.Level', 'Event.System.Opcode',
+            'Event.System.Provider.#attributes.Guid', 'Event.System.Provider.#attributes.Name',
+            'Event.System.Security.#attributes.UserID', 'Event.System.Task',
+            'Event.System.TimeCreated.#attributes.SystemTime', 'Event.System.Version', 'event_record_id', 'timestamp',
+            'Event.EventData.CommandLine', 'Event.EventData.Company', 'Event.EventData.CurrentDirectory',
+            'Event.EventData.Description', 'Event.EventData.FileVersion', 'Event.EventData.Hashes',
+            'Event.EventData.IntegrityLevel', 'Event.EventData.LogonGuid', 'Event.EventData.LogonId',
+            'Event.EventData.ParentCommandLine', 'Event.EventData.ParentImage', 'Event.EventData.ParentProcessGuid',
+            'Event.EventData.ParentProcessId', 'Event.EventData.Product', 'Event.EventData.TerminalSessionId',
+            'Event.EventData.User', 'Event.EventData.ImageLoaded', 'Event.EventData.Signature',
+            'Event.EventData.SignatureStatus', 'Event.EventData.Signed', 'Event.EventData.CallTrace',
+            'Event.EventData.GrantedAccess', 'Event.EventData.SourceImage', 'Event.EventData.SourceProcessGUID',
+            'Event.EventData.SourceProcessId', 'Event.EventData.SourceThreadId', 'Event.EventData.TargetImage',
+            'Event.EventData.TargetProcessGUID', 'Event.EventData.TargetProcessId', 'Event.EventData.CreationUtcTime',
+            'Event.EventData.TargetFilename'
+        ]
+
+        def parse_record(x):
+            temp_df = pd.json_normalize(json.loads(x["data"]))
+            temp_df.loc[:, 'event_record_id'] = x['event_record_id']
+            temp_df.loc[:, 'timestamp'] = x['timestamp']
+
+            missing_col = list(set(columns) - set(temp_df.columns))
+
+            temp_df.loc[:, missing_col] = np.nan
+
+            return temp_df
+
+        records = parser.records_json()
+        res = []
+        for record in records:
+
+
+        res = []
+        dfs = [dask.delayed(parse_record)(x) for x in parser.records_json()]
+        df = dd.from_delayed(dfs,
+                             meta={
+                                 'Event.EventData.CommandLine': 'object',
+                                 'Event.System.Keywords': 'object',
+                                 'Event.System.TimeCreated.#attributes.SystemTime': 'object',
+                                 'Event.System.Version': 'object',
+                                 'Event.EventData.LogonGuid': 'object',
+                                 'Event.EventData.Product': 'object',
+                                 'Event.#attributes.xmlns': 'object',
+                                 'Event.EventData.ImageLoaded': 'object',
+                                 'Event.System.Security.#attributes.UserID': 'object',
+                                 'Event.EventData.IntegrityLevel': 'object',
+                                 'Event.System.Provider.#attributes.Name': 'object',
+                                 'Event.EventData.User': 'object',
+                                 'Event.EventData.Description': 'object',
+                                 'Event.System.Channel': 'object',
+                                 'Event.EventData.CurrentDirectory': 'object',
+                                 'Event.EventData.TargetProcessId': 'object',
+                                 'event_record_id': 'object',
+                                 'Event.EventData.ParentProcessGuid': 'object',
+                                 'Event.System.Correlation': 'object',
+                                 'Event.EventData.TargetObject': 'object',
+                                 'Event.EventData.EventType': 'float64',
+                                 'Event.EventData.CallTrace': 'float64',
+                                 'Event.EventData.GrantedAccess': 'float64',
+                                 'Event.System.Task': 'object',
+                                 'Event.EventData.Image': 'object',
+                                 'Event.EventData.RuleName': 'object',
+                                 'Event.EventData.TerminalSessionId': 'object',
+                                 'Event.EventData.SourceThreadId': 'object',
+                                 'Event.System.EventID': 'object',
+                                 'Event.EventData.UtcTime': 'object',
+                                 'Event.System.Computer': 'object',
+                                 'Event.EventData.Signature': 'object',
+                                 'Event.EventData.SourceProcessId': 'object',
+                                 'Event.EventData.ProcessGuid': 'object',
+                                 'Event.System.Execution.#attributes.ProcessID': 'object',
+                                 'Event.EventData.ParentCommandLine': 'object',
+                                 'Event.EventData.Signed': 'object',
+                                 'Event.EventData.LogonId': 'object',
+                                 'Event.EventData.ProcessId': 'object',
+                                 'Event.EventData.ParentImage': 'object',
+                                 'Event.EventData.SignatureStatus': 'object',
+                                 'Event.EventData.SourceImage': 'object',
+                                 'timestamp': 'object',
+                                 'Event.EventData.FileVersion': 'object',
+                                 'Event.System.Opcode': 'object',
+                                 'Event.System.Execution.#attributes.ThreadID': 'object',
+                                 'Event.System.Level': 'object',
+                                 'Event.EventData.TargetImage': 'object',
+                                 'Event.EventData.TargetProcessGUID': 'object',
+                                 'Event.EventData.Company': 'object',
+                                 'Event.EventData.TargetFilename': 'object',
+                                 'Event.EventData.SourceProcessGUID': 'object',
+                                 'Event.EventData.ParentProcessId': 'object',
+                                 'Event.System.EventRecordID': 'object',
+                                 'Event.System.Provider.#attributes.Guid': 'object',
+                                 'Event.EventData.Details': 'float64',
+                                 'Event.EventData.CreationUtcTime': 'float64',
+                                 'Event.EventData.Hashes': 'object'
+                             },
+                             verify_meta=False)
+        return df
+
     def evtx_to_dask(self, evtx_path: Union[str, List[str]], nrows: int = math.inf, **kwargs) -> dd:
         filepath = f"/tmp/{str(uuid.uuid4())}"
         print(filepath)  # TODO: to delete
@@ -76,7 +187,7 @@ class EvtxParser:
                     nrows: int = math.inf,
                     iterable: bool = False,
                     sep: str = ";",
-                    chunck_size: int = 500):
+                    chunck_size: int = 50000):
         df = self.evtx_to_df(evtx_path, nrows, iterable=iterable)
         if iterable:
             temp_filepath = f"/tmp/{str(uuid.uuid4())}"
@@ -87,6 +198,7 @@ class EvtxParser:
 
             chuncks = []
             for i, row in enumerate(df):
+                print(f"Treating row {i}")
                 chuncks.append(row)
 
                 if len(chuncks) >= chunck_size:

@@ -28,11 +28,11 @@ def test_evtx_to_dask(tmpdir, expected_df):
 def test_evtx_to_json(tmpdir, expected_df):
     reader = EvtxParser()
 
-    json_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
+    evtx_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
 
     temp_file = tmpdir.mkdir("sub").join("evtx.json")
 
-    reader.evtx_to_json(json_path, output_path=temp_file)
+    reader.evtx_to_json(evtx_path, output_path=temp_file)
 
     mydict = json.load(open(temp_file))
     res = pd.json_normalize(mydict)
