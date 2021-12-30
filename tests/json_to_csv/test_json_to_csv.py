@@ -30,7 +30,6 @@ def test_evtx_to_csv(tmpdir, expected_df):
     json_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
 
     temp_file = tmpdir.mkdir("sub").join("evtx")
-    temp_file = "/tmp/evtx.csv"
 
     reader.evtx_to_csv(json_path, output_path=temp_file)
 
