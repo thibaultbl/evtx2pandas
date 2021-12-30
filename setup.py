@@ -12,7 +12,7 @@ def read(fname):
 
 setup(
     name="evtx2pandas",
-    version="0.0.4",
+    version="0.0.5",
     author="Thibault Blanc",
     description=("Convert EVTX to pandas DataFrame."),
     license="GNU General Public License",
