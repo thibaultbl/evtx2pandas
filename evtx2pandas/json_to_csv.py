@@ -86,7 +86,8 @@ dask_dtypes = {
 pd_dtypes = {"data." + k: v for k, v in dask_dtypes.items()}
 
 
-def _write_to_csv(df: Iterable[pd.DataFrame], chunck_size: int, columns: List[str], temp_filepath: str,
+def _write_to_csv(df: Iterable[pd.DataFrame], chunck_size: int,
+                  columns: List[str], temp_filepath: str,
                   sema: multiprocessing.Semaphore, sep: str):
 
     chuncks = list(itertools.islice(df, 0, chunck_size))
@@ -101,7 +102,8 @@ def _write_to_csv(df: Iterable[pd.DataFrame], chunck_size: int, columns: List[st
     [p.join() for p in processes]
 
 
-def _write_chunck(columns: List[str], temp_filepath: str, sep: str, sema: multiprocessing.Semaphore,
+def _write_chunck(columns: List[str], temp_filepath: str, sep: str,
+                  sema: multiprocessing.Semaphore,
                   chuncks: List[pd.DataFrame]):
     sema.acquire(block=True)
     temp_df = pd.concat(chuncks, axis=0)
@@ -117,7 +119,10 @@ def _write_chunck(columns: List[str], temp_filepath: str, sep: str, sema: multip
 
     temp_df = temp_df.loc[:, mycol]  # reorder columns
 
-    temp_df = temp_df.astype({k: pd_dtypes.get(k, "object") for k in temp_df.columns}, errors="ignore")
+    temp_df = temp_df.astype(
+        {k: pd_dtypes.get(k, "object")
+         for k in temp_df.columns},
+        errors="ignore")
 
     csv_lock.acquire(block=True)
     temp_df.to_csv(temp_filepath, index=False, mode="a", header=None, sep=sep)
@@ -142,7 +147,10 @@ class EvtxParser:
         data['event_record_id'] = dask_df["Record"]
         return data
 
-    def evtx_to_json(self, evtx_path: str, output_path: str = None, nrows: int = math.inf):
+    def evtx_to_json(self,
+                     evtx_path: str,
+                     output_path: str = None,
+                     nrows: int = math.inf):
         if output_path is None:
             output_path = f"/tmp/{str(uuid.uuid4())}"
 
@@ -169,14 +177,22 @@ class EvtxParser:
 
             row = next(df)
             columns.extend(set(row.columns))
-            row = row.astype({k: pd_dtypes.get(k, "object") for k in row.columns}, errors="ignore")
+            row = row.astype(
+                {k: pd_dtypes.get(k, "object")
+                 for k in row.columns},
+                errors="ignore")
 
-            row.loc[:, list(columns)].to_csv(temp_filepath, index=False, mode="w", sep=sep, header=None)
+            row.loc[:, list(columns)].to_csv(temp_filepath,
+                                             index=False,
+                                             mode="w",
+                                             sep=sep,
+                                             header=None)
 
             _write_to_csv(df, chunck_size, columns, temp_filepath, sema, sep)
 
-            with open(temp_filepath
-                      ) as file:  # Need to rewrite the whole file to have the header with all columns in order
+            with open(
+                    temp_filepath
+            ) as file:  # Need to rewrite the whole file to have the header with all columns in order
                 with open(output_path, "w") as outputfile:
                     outputfile.write(f"{sep}".join(columns) + " \n")
                     for row in file:
@@ -192,7 +208,8 @@ class EvtxParser:
     def evtx_to_df(self,
                    evtx_path: str,
                    nrows: int = math.inf,
-                   iterable: bool = False) -> Union[pd.DataFrame, Iterable[pd.DataFrame]]:
+                   iterable: bool = False
+                   ) -> Union[pd.DataFrame, Iterable[pd.DataFrame]]:
         mydict = self.evtx_to_dict(evtx_path, nrows)
 
         if iterable:
@@ -200,11 +217,14 @@ class EvtxParser:
         else:
             return self.dict_to_df(mydict)
 
-    def evtx_to_dict(self, evtx_path: str, nrows: int = math.inf) -> Iterable[Dict[Any, Any]]:
+    def evtx_to_dict(self,
+                     evtx_path: str,
+                     nrows: int = math.inf) -> Iterable[Dict[Any, Any]]:
         parser = PyEvtxParser(evtx_path)
 
         for i, record in enumerate(parser.records_json()):
-            record["data"] = json.loads(record["data"])  # Parsing "data" field as json
+            record["data"] = json.loads(
+                record["data"])  # Parsing "data" field as json
 
             yield record
 
