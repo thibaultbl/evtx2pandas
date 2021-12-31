@@ -50,7 +50,7 @@ def test_evtx_to_csv(tmpdir, expected_df):
 def test_evtx_to_csv_iterable(tmpdir):
     reader = EvtxParser()
 
-    json_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
+    json_path = os.path.join(os.path.dirname(__file__), '../Security.evtx')
 
     temp_file = tmpdir.mkdir("sub").join("evtx")
 

@@ -9,6 +9,7 @@ import os
 import multiprocessing
 from functools import partial
 import pandas as pd
+from pandas.core.indexes import multi
 import numpy as np
 import dask.dataframe as dd
 import dask
@@ -19,6 +20,17 @@ from evtx import PyEvtxParser
 global columns
 csv_lock = multiprocessing.Lock()
 columns_lock = multiprocessing.Lock()
+
+
+def _add_row_to_queue(df: Iterable[pd.DataFrame], chunck_size: int, q: multiprocessing.Queue):
+    chuncks = []
+    for row in df:
+        chuncks.append(row)
+
+        if len(chuncks) >= chunck_size:
+            q.put(chuncks)
+            chuncks = []
+    q.put(chuncks)
 
 
 def _write_chunck(columns: List[str], temp_filepath: str, sep: str, q: multiprocessing.Queue,
@@ -145,7 +157,7 @@ class EvtxParser:
                     nrows: int = math.inf,
                     iterable: bool = False,
                     sep: str = ",",
-                    chunck_size: int = 2):
+                    chunck_size: int = 50):
 
         df = self.evtx_to_df(evtx_path, nrows, iterable=iterable)
         if iterable:
@@ -159,18 +171,15 @@ class EvtxParser:
             row.loc[:, list(columns)].to_csv(temp_filepath, index=False, mode="w", sep=sep, header=None)
 
             q = manager.Queue()
-
-            chuncks = []
-            for row in df:
-                chuncks.append(row)
-
-                if len(chuncks) >= chunck_size:
-                    q.put(chuncks)
-                    chuncks = []
-
-            q.put(chuncks)
-            # columns = self._write_chunck()
             n_process = int(multiprocessing.cpu_count() - 1)
+
+            import time
+            start = time.time()
+            print("Start adding row to queue")
+            _add_row_to_queue(df, chunck_size, q)
+            print(f"End Adding row in {time.time() - start}")
+
+            # columns = self._write_chunck()
 
             sema_process = multiprocessing.Semaphore(n_process)
             partial_chunck_func = partial(_write_chunck, columns, temp_filepath, sep, q, sema_process)
