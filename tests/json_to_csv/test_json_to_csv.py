@@ -117,7 +117,6 @@ def test_evtx_to_csv_big_file(tmpdir, expected_df):
     start = time.time()
     reader.evtx_to_csv(json_path, output_path=temp_file, iterable=True)
     print(f"Time taken for csv processing big file = {time.time() - start}")
-    assert 1 == 2
 
 
 def test_evtx_to_df(expected_df):
