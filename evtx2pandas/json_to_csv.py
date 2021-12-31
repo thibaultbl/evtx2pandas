@@ -38,11 +38,12 @@ def _write_chunck(columns: List[str], temp_filepath: str, sep: str, q: multiproc
     new_columns = list(set(temp_df.columns) - set(columns))
     old_columns_not_in_df = list(set(columns) - set(temp_df.columns))
     columns.extend(new_columns)
+    mycol = list(columns)
     columns_lock.release()
 
     temp_df.loc[:, old_columns_not_in_df] = np.nan
 
-    temp_df = temp_df.loc[:, list(columns)]  # reorder columns
+    temp_df = temp_df.loc[:, mycol]  # reorder columns
 
     csv_lock.acquire(block=True)
     temp_df.to_csv(temp_filepath, index=False, mode="a", header=None, sep=sep)
