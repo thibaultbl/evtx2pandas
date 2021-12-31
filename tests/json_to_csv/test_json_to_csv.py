@@ -1,5 +1,6 @@
 import os
 import json
+import time
 
 import numpy as np
 import pandas as pd
@@ -44,6 +45,51 @@ def test_evtx_to_csv(tmpdir, expected_df):
     df = df.drop("timestamp", axis=1)
 
     pd.testing.assert_frame_equal(expected_df, df.head(2), check_dtype=False, check_names=False, check_like=True)
+
+
+def test_evtx_to_csv_iterable(tmpdir):
+    reader = EvtxParser()
+
+    json_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
+
+    temp_file = tmpdir.mkdir("sub").join("evtx")
+
+    sep = ";"
+
+    reader.evtx_to_csv(json_path, output_path=temp_file, sep=sep)
+
+    df = pd.read_csv(temp_file, sep=sep)
+
+    temp_file_iterable = tmpdir.join("sub/evtx_iterable")
+    temp_file_iterable = "/tmp/temp_evtx.csv"
+
+    reader.evtx_to_csv(json_path, output_path=temp_file_iterable, iterable=True, sep=sep)
+
+    df_iterable = pd.read_csv(temp_file_iterable, sep=sep, on_bad_lines="warn")
+    df_iterable.columns = [x.strip() for x in df_iterable.columns]
+    df.columns = [x.strip() for x in df.columns]
+
+    df = df.loc[:, df_iterable.columns]
+
+    df = df.sort_values(by='event_record_id').reset_index(drop=True)
+    df_iterable = df_iterable.sort_values(by='event_record_id').reset_index(drop=True)
+
+    pd.testing.assert_frame_equal(df, df_iterable, check_like=False)
+
+
+def test_evtx_to_csv_big_file(tmpdir, expected_df):
+    # for a big file
+    reader = EvtxParser()
+
+    # json_path = os.path.join(os.path.dirname(__file__), '../Security.evtx')
+    json_path = os.path.join(os.path.dirname(__file__), '../evtx_sample.evtx')
+
+    temp_file = tmpdir.mkdir("sub").join("evtx")
+
+    start = time.time()
+    reader.evtx_to_csv(json_path, output_path=temp_file, iterable=True)
+    print(f"Time taken for csv processing big file = {time.time() - start}")
+    assert 1 == 2
 
 
 def test_evtx_to_df(expected_df):
@@ -102,4 +148,4 @@ def test_dict_to_df(example_dict):
 
     expected = expected.reset_index(drop=True)
 
-    pd.testing.assert_frame_equal(df, expected)
+    pd.testing.assert_frame_equal(df, expected, check_like=True)

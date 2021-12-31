@@ -6,6 +6,8 @@ import json
 import uuid
 import os
 
+import multiprocessing
+from functools import partial
 import pandas as pd
 import numpy as np
 import dask.dataframe as dd
@@ -13,6 +15,39 @@ import dask
 from typing import Dict, Iterable, Any, Union, List
 
 from evtx import PyEvtxParser
+
+global columns
+csv_lock = multiprocessing.Lock()
+columns_lock = multiprocessing.Lock()
+
+
+def _write_chunck(columns: List[str], temp_filepath: str, sep: str, q: multiprocessing.Queue,
+                  sema: multiprocessing.Semaphore):
+    if q.empty():
+        return
+    sema.acquire()
+    chuncks = q.get()
+
+    if len(chuncks) == 0:
+        sema.release()
+        return
+
+    temp_df = pd.concat(chuncks, axis=0)
+
+    columns_lock.acquire(block=True)
+    new_columns = list(set(temp_df.columns) - set(columns))
+    old_columns_not_in_df = list(set(columns) - set(temp_df.columns))
+    columns.extend(new_columns)
+    columns_lock.release()
+
+    temp_df.loc[:, old_columns_not_in_df] = np.nan
+
+    temp_df = temp_df.loc[:, list(columns)]  # reorder columns
+
+    csv_lock.acquire(block=True)
+    temp_df.to_csv(temp_filepath, index=False, mode="a", header=None, sep=sep)
+    csv_lock.release()
+    sema.release()
 
 
 class EvtxParser:
@@ -103,42 +138,50 @@ class EvtxParser:
 
         return output_path
 
-    def _write_chunck(self, chuncks: List[pd.DataFrame], columns: List[str], temp_filepath: str, sep: str):
-        temp_df = pd.concat(chuncks, axis=0)
-        new_columns = list(set(temp_df.columns) - set(columns))
-        old_columns_not_in_df = list(set(columns) - set(temp_df.columns))
-        columns = columns + new_columns
-        temp_df.loc[:, old_columns_not_in_df] = np.nan
-
-        temp_df = temp_df.loc[:, columns]  # reorder columns
-
-        temp_df.to_csv(temp_filepath, index=False, mode="a", header=None, sep=sep)
-        return columns
-
     def evtx_to_csv(self,
                     evtx_path: str,
                     output_path: str,
                     nrows: int = math.inf,
                     iterable: bool = False,
                     sep: str = ",",
-                    chunck_size: int = 500):
+                    chunck_size: int = 2):
+
         df = self.evtx_to_df(evtx_path, nrows, iterable=iterable)
         if iterable:
+            manager = multiprocessing.Manager()
+            columns = manager.list()
+
             temp_filepath = f"/tmp/{str(uuid.uuid4())}"
 
             row = next(df)
-            row.to_csv(temp_filepath, index=False, mode="w", sep=sep, header=None)
-            columns = list(row.columns)
+            columns.extend(set(row.columns))
+            row.loc[:, list(columns)].to_csv(temp_filepath, index=False, mode="w", sep=sep, header=None)
+
+            q = manager.Queue()
 
             chuncks = []
-            for i, row in enumerate(df):
+            for row in df:
                 chuncks.append(row)
 
                 if len(chuncks) >= chunck_size:
-                    columns = self._write_chunck(chuncks, columns, temp_filepath, sep)
+                    q.put(chuncks)
                     chuncks = []
 
-            columns = self._write_chunck(chuncks, columns, temp_filepath, sep)
+            q.put(chuncks)
+            # columns = self._write_chunck()
+            n_process = int(multiprocessing.cpu_count() - 1)
+
+            sema_process = multiprocessing.Semaphore(n_process)
+            partial_chunck_func = partial(_write_chunck, columns, temp_filepath, sep, q, sema_process)
+
+            res = []
+            while not q.empty():
+                p = multiprocessing.Process(target=partial_chunck_func)
+                p.start()
+                res.append(p)
+
+            [r.join() for r in res]
+            [r.close() for r in res]
 
             with open(temp_filepath
                       ) as file:  # Need to rewrite the whole file to have the header with all columns in order
@@ -177,4 +220,5 @@ class EvtxParser:
                 break
 
     def dict_to_df(self, input: Dict) -> pd.DataFrame:
-        return pd.json_normalize(input, max_level=None)
+        df = pd.json_normalize(input, max_level=None)
+        return df.reindex(sorted(df.columns), axis=1)
