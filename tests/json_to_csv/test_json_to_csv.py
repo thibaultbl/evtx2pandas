@@ -47,6 +47,26 @@ def test_evtx_to_csv(tmpdir, expected_df):
     pd.testing.assert_frame_equal(expected_df, df.head(2), check_dtype=False, check_names=False, check_like=True)
 
 
+def remove_0(df):
+    """Remove .0 that are created when dtype is float then converted to object
+    """
+    df.loc[:, ["data.Event.EventData.ProcessId", "data.Event.EventData.PrivilegeList"
+               ]] = df.loc[:, ["data.Event.EventData.ProcessId", "data.Event.EventData.PrivilegeList"]].applymap(
+                   lambda x: str(x).replace(".0", ""))
+    return df
+
+
+def remove_r(df):
+    """Remove /r (return to line) that are adding in some df
+    """
+    cols = [
+        "data.Event.EventData.PrivilegeList", "data.Event.EventData.AccessList", "data.Event.EventData.Properties",
+        "data.Event.EventData.UserAccountControl", "data.Event.EventData.TaskContent"
+    ]
+    df.loc[:, cols] = df.loc[:, cols].applymap(lambda x: str(x).replace("\r", "").replace("nan", "NaN"))
+    return df
+
+
 def test_evtx_to_csv_iterable(tmpdir):
     reader = EvtxParser()
 
@@ -61,7 +81,6 @@ def test_evtx_to_csv_iterable(tmpdir):
     df = pd.read_csv(temp_file, sep=sep)
 
     temp_file_iterable = tmpdir.join("sub/evtx_iterable")
-    temp_file_iterable = "/tmp/temp_evtx.csv"
 
     reader.evtx_to_csv(json_path, output_path=temp_file_iterable, iterable=True, sep=sep)
 
@@ -74,7 +93,16 @@ def test_evtx_to_csv_iterable(tmpdir):
     df = df.sort_values(by='event_record_id').reset_index(drop=True)
     df_iterable = df_iterable.sort_values(by='event_record_id').reset_index(drop=True)
 
-    pd.testing.assert_frame_equal(df, df_iterable, check_like=False)
+    df_iterable = remove_0(df_iterable)
+    df = remove_0(df)
+    df = remove_r(df)
+    df_iterable = remove_r(df_iterable)
+
+    print(df.loc[:, "data.Event.EventData.Properties"].sample(10))
+    print(df_iterable.loc[:, "data.Event.EventData.Properties"].sample(10))
+    print(df.loc[:, "data.Event.EventData.Properties"].compare(df_iterable.loc[:, "data.Event.EventData.Properties"]))
+
+    pd.testing.assert_frame_equal(df, df_iterable, check_like=True, check_exact=False)
 
 
 def test_evtx_to_csv_big_file(tmpdir, expected_df):
