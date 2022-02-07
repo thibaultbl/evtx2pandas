@@ -4,7 +4,7 @@ Introduction
 ------------
 Convert EVTX (Log file created by the Windows 7 Event Viewer) to pandas, but also CSV, JSON or Dask DataFrame.
 
-JSON creation is based on: https://github.com/thibaultbl/evtx
+JSON creation is based on: https://github.com/omerbenamram/evtx
 
 Installation
 ------------
