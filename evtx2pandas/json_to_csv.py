@@ -133,6 +133,7 @@ def _write_chunck(columns: List[str], temp_filepath: str, sep: str,
 class EvtxParser:
     """[summary]
     """
+    
     def _normalize(self, x, columns_order=list(dask_dtypes.keys())):
         df = pd.json_normalize(x)
         return df.loc[:, columns_order]
