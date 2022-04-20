@@ -20,6 +20,8 @@ Usage
 ::
 
    from evtx2pandas.json_to_csv import EvtxParser
+   
+   reader = EvtxParser()
 
    # To convert evtx to pandas DataFrame
    df = reader.evtx_to_df(evtx_path)
